@@ -1,9 +1,11 @@
-#!/usr/bin/env python3.8
+#!/usr/bin/env python
 
 import rospy
 import sys
 
-from queue import Empty
+from geometry_msgs.msg import Twist
+from std_msgs.msg import Bool
+
 from teknofest_industrial_tech.srv import *
 from teknofest_industrial_tech.msg import linePoint
 
@@ -11,7 +13,13 @@ class Planner:
     def __init__(self):
         rospy.logwarn('[INFO] Planner is starting')
 
+        self.cmd_vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
+        self.twist = Twist()
+        self.orient = True
+
+        self.orientation_sub = rospy.Subscriber('orientation', Bool, self.orientation_callback)
         self.midpoint_sub = rospy.Subscriber('/points', linePoint, self.lane_function)
+        
         self.p = 1.3
         self.i = 2150
     
@@ -19,41 +27,42 @@ class Planner:
         self.avaliable = msg.avaiable
         self.cx = msg.cx
         self.cy = msg.cy
-        # self.w = 320
         self.w = msg.w
-        self.main()
+        if self.orient:
+            rospy.logwarn('******Waiting for orientation******')
+        
+        else:
+            self.main()
+        
+
+    def orientation_callback(self, orient):
+        self.orient = orient.data
+    
+    def cmd_vel(self, x, w):
+        self.twist.linear.x = x
+        self.twist.angular.z = w
+        self.cmd_vel_pub.publish(self.twist)
     
     def main(self):
-        if sys.getsizeof(self.cx) is not Empty:
-            # rospy.loginfo('lane track is activated....')
-            error = self.w / 4
-            # error = self.cx - self.w
+        # if sys.getsizeof(self.cx) is not Empty:
+        # rospy.loginfo('lane track is activated....')
+        error = self.w / 4
 
-            # rospy.loginfo(f'the error is: {error}')
-
-            if self.cx >= (3*error) and self.cx <= (5*error):
-                rospy.loginfo('move forward')
-            
-            elif self.cx > (5*error) and self.cx <= (7*error):
-                rospy.loginfo('move right')
-            
-            elif self.cx >= (error) and self.cx < (3*error):
-                rospy.loginfo('move left')
-            
-            elif self.cx > (7*error) and self.cx < (error):
-                rospy.loginfo('move forward')
-
-            # if error >= -20 and error <= 20:
-            #     rospy.loginfo('move forward')
-            
-            # elif error > 20 and error <= 80:
-            #     rospy.loginfo('turn right')
-
-            # elif error > -80 and error < -20:
-            #     rospy.loginfo('turn left')
-            
-            # elif error < -80 or error > 80:
-            #     rospy.loginfo('stop')
+        if self.cx >= (3*error) and self.cx <= (5*error):
+            self.cmd_vel(0.3, 0)
+            rospy.loginfo('move forward')
+        
+        elif self.cx > (5*error) and self.cx <= (7*error):
+            self.cmd_vel(0, -0.4)
+            rospy.loginfo('move right')
+        
+        elif self.cx >= (error) and self.cx < (3*error):
+            self.cmd_vel(0.0, 0.4)
+            rospy.loginfo('move left')
+        
+        elif self.cx > (7*error) and self.cx < (error):
+            self.cmd_vel(0.0, 0)
+            rospy.loginfo('stop')
 
 
 if __name__ == '__main__':

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import cv2, rospy, logging, cv_bridge, time
 from pyzbar import pyzbar
@@ -22,7 +22,7 @@ class qrReader:
 
         # setting parameters
         self.wait_for_qr = rospy.get_param("/wait_for_qr", 1.5)
-        self.qr_image_topic = rospy.get_param("/qr_image_topic", "/usb_cam2/image_raw")
+        self.qr_image_topic = rospy.get_param("/qr_image_topic", "/usb_cam/image_raw")
         self.show_qr_image = rospy.get_param("/show_qr_image", False)
         self.odom_topic = rospy.get_param("/odom", "/odom")
 
@@ -44,6 +44,7 @@ class qrReader:
         self.z_vel = odom.twist.twist.angular.z
 
     def read_barcodes(self, frame):
+        rospy.loginfo('QR CODE STARTING.....')
         barcodes = pyzbar.decode(frame)
 
         # marking the barcode on the screen
@@ -58,6 +59,7 @@ class qrReader:
             
             
         if barcodes:
+            rospy.loginfo('QR CODE DETECTED')
             return [True, frame]
         
         else:
@@ -67,11 +69,12 @@ class qrReader:
     def video(self, images):
         # converting topic to cv2 arrays
         self.goruntu = self.bridge.imgmsg_to_cv2(images, 'bgr8') 
+        self.read_barcodes(self.goruntu)
 
         # show qr code frame
         if self.show_qr_image == True:
             cv2.imshow("qr", self.goruntu)
-            cv2.waitKey(3)
+            cv2.waitKey(1)
     
     def video_edit(self):
         rospy.sleep(5)

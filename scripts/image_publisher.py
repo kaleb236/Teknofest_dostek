@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 #-*-coding: utf-8 -*-
 
 import rospy, cv2
@@ -12,7 +12,7 @@ def publish_image():
 
     pub = rospy.Publisher('/usb_cam/image_raw', Image, queue_size=0)
 
-    cap = cv2.VideoCapture('/dev/video1')
+    cap = cv2.VideoCapture('/dev/video0')
 
     bridge = CvBridge()
 

@@ -16,6 +16,6 @@ show_image: True
 
 # for qr reader script
 wait_for_qr: 1.5
-show_qr_image: False
-qr_image_topic: '/usb_cam2/image_raw'
+show_qr_image: True
+qr_image_topic: '/usb_cam/image_raw'
 odom: '/odom_filtered'
