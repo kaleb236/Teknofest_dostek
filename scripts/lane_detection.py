@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #-*-coding: utf-8 -*-
 
 import rospy, cv2, logging
@@ -31,47 +31,53 @@ class lane:
         upper_yellow = np.array([20, 20, 20], np.uint8)
 
         mask = cv2.inRange(hsv_goruntu, lower_yellow, upper_yellow)
+        blur = cv2.GaussianBlur(gray, (5,5),0)
+        ret, thresh = cv2.threshold(blur, 60,255, cv2.THRESH_BINARY_INV)
 
         h, w, d = hsv_goruntu.shape
 
         w_half = w/2
 
-  
-        moment = cv2.moments(mask)
-       
-        if moment['m00'] > 0:
-            cx = int(moment['m10']/moment['m00'])
-            cy = int(moment['m01']/moment['m00'])
+        contours, hierarchy = cv2.findContours(thresh.copy(), 1, cv2.CHAIN_APPROX_NONE)
 
-            cv2.circle(cv_goruntu, (cx, cy), 20, (0,255,100), -1)
+        if len(contours) > 0:
+            c = max(contours, key=cv2.contourArea)
+            moment = cv2.moments(c)
+        
+            if moment['m00'] > 0:
+                cx = int(moment['m10']/moment['m00'])
+                cy = int(moment['m01']/moment['m00'])
 
-            
+                cv2.circle(cv_goruntu, (cx, cy), 20, (0,255,100), -1)
 
-            lpoints = linePoint()
-            lpoints.cx = cx
-            lpoints.cy = cy
-            lpoints.w = w_half
-            lpoints.avaiable = True
-            self.pointPub.publish(lpoints)
-            # rospy.loginfo("[INFO] lane detected")
+                
+
+                lpoints = linePoint()
+                lpoints.cx = cx
+                lpoints.cy = cy
+                lpoints.w = w_half
+                lpoints.avaiable = True
+                self.pointPub.publish(lpoints)
+                # rospy.loginfo("[INFO] lane detected")
 
         else:
             lpoints = linePoint()
             lpoints.avaiable = False
             self.pointPub.publish(lpoints)
             # rospy.logwarn("[WARN] lane cannot be detected")
-        if self.show_image == True:
-            cv2.imshow('mask', mask)
-            cv2.imshow('merkez', cv_goruntu)
-            cv2.waitKey(1)
+            
+        # if self.show_image == True:
+        cv2.imshow('mask', thresh)
+        cv2.imshow('merkez', cv_goruntu)
+        cv2.waitKey(1)
 
 if __name__ == "__main__":
     rospy.init_node('lane_detection', anonymous=True)
 
     #activitng functions for ros debugger
-    logger = logging.getLogger("rosout") #setting output broker of debug 
-    logger.setLevel(logging.DEBUG)
-    level = logger.getEffectiveLevel()
+    # logger = logging.getLogger("rosout") #setting output broker of debug 
+    # logger.setLevel(logging.DEBUG)
+    # level = logger.getEffectiveLevel()
 
     obje = lane()
     rospy.spin()

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import rospy
 import sys
@@ -16,9 +16,11 @@ class Planner:
         self.cmd_vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
         self.twist = Twist()
         self.orient = True
+        self.stop_lane = False
 
         self.orientation_sub = rospy.Subscriber('orientation', Bool, self.orientation_callback)
         self.midpoint_sub = rospy.Subscriber('/points', linePoint, self.lane_function)
+        self.stop_lane_sub = rospy.Subscriber('/stop_lane', Bool, self.stop_lane_callback)
         
         self.p = 1.3
         self.i = 2150
@@ -28,15 +30,25 @@ class Planner:
         self.cx = msg.cx
         self.cy = msg.cy
         self.w = msg.w
-        if self.orient:
-            rospy.logwarn('******Waiting for orientation******')
+        if self.avaliable:
+            if self.orient:
+                rospy.logwarn('******Waiting for orientation******')
+            
+            else:
+                self.main()
         
         else:
-            self.main()
+            if not self.stop_lane:
+                self.cmd_vel(0.0, 0.0)
+            else:
+                rospy.logwarn('*******Lane following stopped********')
         
 
     def orientation_callback(self, orient):
         self.orient = orient.data
+    
+    def stop_lane_callback(self, lane):
+        self.stop_lane = lane.data
     
     def cmd_vel(self, x, w):
         self.twist.linear.x = x
@@ -49,15 +61,15 @@ class Planner:
         error = self.w / 4
 
         if self.cx >= (3*error) and self.cx <= (5*error):
-            self.cmd_vel(0.3, 0)
+            self.cmd_vel(0.12, 0)
             rospy.loginfo('move forward')
         
         elif self.cx > (5*error) and self.cx <= (7*error):
-            self.cmd_vel(0, -0.4)
+            self.cmd_vel(0.12, -0.2)
             rospy.loginfo('move right')
         
         elif self.cx >= (error) and self.cx < (3*error):
-            self.cmd_vel(0.0, 0.4)
+            self.cmd_vel(0.12, 0.2)
             rospy.loginfo('move left')
         
         elif self.cx > (7*error) and self.cx < (error):

@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+#-*-coding: utf-8 -*-
 
 import rospy
 import numpy as np
@@ -89,7 +90,7 @@ class Imu_class:
     
     def check_ornt(self, q):
         diff = np.dot(q, self.rotated_angle)
-        if diff >= 0.99:
+        if diff >= 0.993:
             self.rotate_bool = False
             msg = Bool().data = False
             self.current_direction = self.current_orientation

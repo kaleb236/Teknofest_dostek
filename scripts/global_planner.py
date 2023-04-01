@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #-*-coding: utf-8 -*-
 
 import rospy
@@ -9,7 +9,7 @@ class Global_planner:
     def __init__(self):
         self.dir_index = 0
         self.path_index = 0
-        self.directions = []
+        self.directions = ['R', 'D', 'D', 'L', 'U', 'U']
         self.loading_state = True
         self.full_path = []
         self.pub = rospy.Publisher('direction_topic', String, queue_size=10)
@@ -31,7 +31,7 @@ class Global_planner:
                 else:
                     rospy.logwarn('********UNLOADING*******')
                     self.loading_state = True
-                rospy.sleep(1)
+                rospy.sleep(10)
                 self.path_index+=1
                 if len(self.full_path) > (self.path_index + 1):
                     self.directions = self.full_path[self.path_index]
