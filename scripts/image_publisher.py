@@ -15,7 +15,7 @@ def publish_image():
     pub = rospy.Publisher('/usb_cam/image_raw', Image, queue_size=0)
     qr_pub = rospy.Publisher('/qr_bool', Bool, queue_size=10)
 
-    cap = cv2.VideoCapture('/dev/video1')
+    cap = cv2.VideoCapture('/dev/video0')
     # cap = cv2.VideoCapture(1)
 
     bridge = CvBridge()
@@ -30,14 +30,14 @@ def publish_image():
 
         if ret:
             # try:
-            barcodes = pyzbar.decode(frame)
+            # barcodes = pyzbar.decode(frame)
 
-            if barcodes:
-                qr_pub.publish(True)
-                rospy.logwarn('barcode detected')
+            # if barcodes:
+            #     qr_pub.publish(True)
+            #     rospy.logwarn('barcode detected')
             
-            else:
-                qr_pub.publish(False)
+            # else:
+            #     qr_pub.publish(False)
                 # for barcode in barcodes:
                 #     (x, y, w, h) = barcode.rect
 

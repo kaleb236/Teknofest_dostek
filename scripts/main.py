@@ -15,12 +15,14 @@ class Planner:
 
         self.cmd_vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
         self.twist = Twist()
-        self.orient = True
-        self.stop_lane = False
+        self.orient = False
+        self.obstacle = False
+        self.stop_lane = True
 
         self.orientation_sub = rospy.Subscriber('orientation', Bool, self.orientation_callback)
         self.midpoint_sub = rospy.Subscriber('/points', linePoint, self.lane_function)
         self.stop_lane_sub = rospy.Subscriber('/stop_lane', Bool, self.stop_lane_callback)
+        self.obstacle_sub = rospy.Subscriber('/obstacle', Bool, self.obstacle_callback)
         
         self.p = 1.3
         self.i = 2150
@@ -31,7 +33,7 @@ class Planner:
         self.cy = msg.cy
         self.w = msg.w
         if self.avaliable:
-            if self.orient:
+            if self.orient or self.obstacle:
                 rospy.logwarn('******Waiting for orientation******')
             
             else:
@@ -54,6 +56,9 @@ class Planner:
         self.twist.linear.x = x
         self.twist.angular.z = w
         self.cmd_vel_pub.publish(self.twist)
+    
+    def obstacle_callback(self, obs):
+        self.obstacle = obs.data
     
     def main(self):
         # if sys.getsizeof(self.cx) is not Empty:

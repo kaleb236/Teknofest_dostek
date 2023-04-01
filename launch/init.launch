@@ -19,9 +19,9 @@
     <node name="image_publisher" pkg="teknofest_industrial_tech" type="image_publisher.py"/>
     <node name="lane_detection" pkg="teknofest_industrial_tech" type="lane_detection.py"/>
     <node name="main_planner" pkg="teknofest_industrial_tech" type="main.py"/>
-    <node name="global_planner" pkg="teknofest_industrial_tech" type="global_planner.py"/>
-    <node name="rotate_node" pkg="teknofest_industrial_tech" type="rotate_node.py"/>
-    <node name="mqtt_server" pkg="teknofest_industrial_tech" type="mqtt.py"/>
+    <!-- <node name="global_planner" pkg="teknofest_industrial_tech" type="global_planner.py"/> -->
+    <!-- <node name="rotate_node" pkg="teknofest_industrial_tech" type="rotate_node.py"/> -->
+    <!-- <node name="mqtt_server" pkg="teknofest_industrial_tech" type="mqtt.py"/> -->
     <!-- <node name="local_planner" pkg="teknofest_industrial_tech" type="__init__.py" output="screen"/> -->
     <!-- <node name="qr_reader_node" pkg="teknofest_industrial_tech" type="read_qr.py" output="screen"/> -->
 
