@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import cv2, rospy, logging, cv_bridge, time
 from pyzbar import pyzbar
